@@ -1,0 +1,55 @@
+[kafka@localhost confluent-5.1.0]$ pwd
+/home/kafka/Desktop/Kafka/confluent-5.1.0
+[kafka@localhost confluent-5.1.0]$ cd bin
+[kafka@localhost bin]$ sudo ./confluent start
+[sudo] password for kafka: 
+This CLI is intended for development only, not for production
+https://docs.confluent.io/current/cli/index.html
+
+Using CONFLUENT_CURRENT: /tmp/confluent.WKf09EWS
+Starting zookeeper
+zookeeper is [UP]
+Starting kafka
+kafka is [UP]
+Starting schema-registry
+schema-registry is [UP]
+Starting kafka-rest
+kafka-rest is [UP]
+Starting connect
+connect is [UP]
+Starting ksql-server
+ksql-server is [UP]
+Starting control-center
+control-center is [UP]
+[kafka@localhost bin]$ 
+
+
+[kafka@localhost bin]$ sudo ./confluent stop
+
+[kafka@localhost bin]$ sudo ./confluent start schema-registry
+
+Download mysql connector from 
+https://dev.mysql.com/downloads/file/?id=480090
+
+extract zip and Copy the jar mysql file  mysql-connector-java-5.1.47-bin.jar to the directory 
+
+/home/kafka/Desktop/Kafka/confluent-5.1.0/share/java
+
+goto following directory and create new property file
+
+/home/kafka/Desktop/Kafka/confluent-5.1.0/etc
+
+Create a new Properties file : mysql-source.properties
+
+add following properties:
+
+name=test-source-mysql-jdbc-autoincrement
+connection.url=jdbc:mysql://192.168.18.65:3306/testkafkadb?user=root&password=pwd
+mode=incrementing
+incrementing.column.name=empid
+topic.prefix=topic-mysql-
+
+sudo bin/connect-standalone etc/schema-registry/connect-avro-standalone.properties etc/kafka-connect-jdbc/mysql-source.properties
+
+
+sudo ./kafka-avro-console-consumer --topic topic-mysql-employee --bootstrap-server localhost:9092 --from-beginning
