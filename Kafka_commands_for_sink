@@ -1,0 +1,321 @@
+Cassandra sink connector steps.
+
+In linux, download cassandra from 
+http://www.apache.org/dyn/closer.lua/cassandra/3.11.4/apache-cassandra-3.11.4-bin.tar.gz
+
+Also download kafka cassandra connector from 
+https://github.com/Landoop/stream-reactor/releases 
+download name kafka-connect-cassandra-1.2.1-2.1.0-all.tar.gz
+
+extract the zip and paste the kafka-connect-cassandra-1.2.1-2.1.0-all.jar  into /home/kafka/Desktop/Kafka/confluent-5.1.0/share/java/kafka-connect-jdbc
+
+extract downloaded cassandra db zip file
+
+open terminal and change directory to bin in the extraced folder and run the following command
+
+[kafka@localhost bin]$ sudo ./cassandra
+
+now cassandra db server is started
+
+open another terminal in bin directory and run the following command
+
+[kafka@localhost bin]$ ./cqlsh
+
+then
+
+cqlsh> create keyspace testkeyspace with replication={'class':'SimpleStrategy', 'replication_factor':1};
+cqlsh> use testkeyspace;
+
+then
+
+cqlsh:testkeyspace> create table employee(empid int primary key, emp_name text, designation text);
+
+cqlsh:testkeyspace> desc tables;
+
+
+then goto  /home/kafka/Desktop/Kafka/confluent-5.1.0/etc/kafka-connect-jdbc
+
+copy and pase sink-quickstart-sqlite.properties and rename it to cassandra-sink.properties
+
+open the following link
+https://www.confluent.io/blog/kafka-connect-cassandra-sink-the-perfect-match/
+
+Now search on web page for "why kcql" using cntrl+f and copy all the cassandra related propreties/ below properties
+
+connector.class=com.datamountaineer.streamreactor.connect.cassandra.sink.CassandraSinkConnector
+tasks.max=1
+topics=orders-topic
+connect.cassandra.export.route.query=INSERT INTO orders SELECT * FROM orders-topic
+connect.cassandra.contact.points=localhost
+connect.cassandra.port=9042
+connect.cassandra.key.space=demo
+connect.cassandra.username=cassandra
+connect.cassandra.password=cassandra
+
+final properties should look like below
+
+name=test-sink-cassandra
+connector.class=com.datamountaineer.streamreactor.connect.cassandra.sink.CassandraSinkConnector
+tasks.max=1
+topics=topic-mysql-employee
+#connect.cassandra.export.route.query=INSERT INTO orders SELECT * FROM orders-topic
+connect.cassandra.kcql=insert into employee select * from topic-mysql-employee
+connect.cassandra.contact.points=localhost
+connect.cassandra.port=9042
+connect.cassandra.key.space=testkeyspace
+connect.cassandra.username=cassandra
+connect.cassandra.password=cassandra
+
+Now terminate the mysql-connector terminal executed using below command
+sudo bin/connect-standalone etc/schema-registry/connect-avro-standalone.properties etc/kafka-connect-jdbc/mysql-source.properties
+
+
+Now run the following command to start cassandra connector console
+
+sudo bin/connect-standalone etc/schema-registry/connect-avro-standalone.properties etc/kafka-connect-jdbc/mysql-source.properties etc/kafka-connect-jdbc/cassandra-sink.properties
+
+    now here both mysql connector and cassandra connectors are running in sync
+
+Now run select * from employee on cassandra db client to verify the insertion of records from topic-mysql-employee topic where were inserted from mysql table using mysql connector
+
+Cassandra sink connector steps.
+
+In linux, download cassandra from 
+http://www.apache.org/dyn/closer.lua/cassandra/3.11.4/apache-cassandra-3.11.4-bin.tar.gz
+
+Also download kafka cassandra connector from 
+https://github.com/Landoop/stream-reactor/releases 
+download name kafka-connect-cassandra-1.2.1-2.1.0-all.tar.gz
+
+extract the zip and paste the kafka-connect-cassandra-1.2.1-2.1.0-all.jar  into /home/kafka/Desktop/Kafka/confluent-5.1.0/share/java/kafka-connect-jdbc
+
+extract downloaded cassandra db zip file
+
+open terminal and change directory to bin in the extraced folder and run the following command
+
+[kafka@localhost bin]$ sudo ./cassandra
+
+now cassandra db server is started
+
+open another terminal in bin directory and run the following command
+
+[kafka@localhost bin]$ ./cqlsh
+
+then
+
+cqlsh> create keyspace testkeyspace with replication={'class':'SimpleStrategy', 'replication_factor':1};
+cqlsh> use testkeyspace;
+
+then
+
+cqlsh:testkeyspace> create table employee(empid int primary key, emp_name text, designation text);
+
+cqlsh:testkeyspace> desc tables;
+
+
+then goto  /home/kafka/Desktop/Kafka/confluent-5.1.0/etc/kafka-connect-jdbc
+
+copy and pase sink-quickstart-sqlite.properties and rename it to cassandra-sink.properties
+
+open the following link
+https://www.confluent.io/blog/kafka-connect-cassandra-sink-the-perfect-match/
+
+Now search on web page for "why kcql" using cntrl+f and copy all the cassandra related propreties/ below properties
+
+connector.class=com.datamountaineer.streamreactor.connect.cassandra.sink.CassandraSinkConnector
+tasks.max=1
+topics=orders-topic
+connect.cassandra.export.route.query=INSERT INTO orders SELECT * FROM orders-topic
+connect.cassandra.contact.points=localhost
+connect.cassandra.port=9042
+connect.cassandra.key.space=demo
+connect.cassandra.username=cassandra
+connect.cassandra.password=cassandra
+
+final properties should look like below
+
+name=test-sink-cassandra
+connector.class=com.datamountaineer.streamreactor.connect.cassandra.sink.CassandraSinkConnector
+tasks.max=1
+topics=topic-mysql-employee
+#connect.cassandra.export.route.query=INSERT INTO orders SELECT * FROM orders-topic
+connect.cassandra.kcql=insert into employee select * from topic-mysql-employee
+connect.cassandra.contact.points=localhost
+connect.cassandra.port=9042
+connect.cassandra.key.space=testkeyspace
+connect.cassandra.username=cassandra
+connect.cassandra.password=cassandra
+
+Now terminate the mysql-connector terminal executed using below command
+sudo bin/connect-standalone etc/schema-registry/connect-avro-standalone.properties etc/kafka-connect-jdbc/mysql-source.properties
+
+
+Now run the following command to start cassandra connector console
+
+sudo bin/connect-standalone etc/schema-registry/connect-avro-standalone.properties etc/kafka-connect-jdbc/mysql-source.properties etc/kafka-connect-jdbc/cassandra-sink.properties
+
+    now here both mysql connector and cassandra connectors are running in sync
+
+Now run select * from employee on cassandra db client to verify the insertion of records from topic-mysql-employee topic where were inserted from mysql table using mysql connector
+
+
+cassandra-sink.properties
+connect.cassandra.kcql=insert into employee_test select emp_id as id,emp_name as name,designation as designation from topic-mysql-employee
+connect.cassandra.kcql=insert into employee_test select emp_id as id,emp_name as name,designation as designation from topic-mysql-employee
+
+
+https://medium.com/walmartlabs/getting-started-with-the-kafka-connect-cassandra-source-e6e06ec72e97
+
+
+create table person(id int primary key,name text,location text,creationTime TIMEUUID );
+
+
+#
+# Copyright 2018 Confluent Inc.
+#
+# Licensed under the Confluent Community License; you may not use this file
+# except in compliance with the License.  You may obtain a copy of the License at
+#
+# http://www.confluent.io/confluent-community-license
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OF ANY KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations under the License.
+#
+
+# A simple example that copies all tables from a SQLite database. The first few settings are
+# required for all connectors: a name, the connector class to run, and the maximum number of
+# tasks to create:
+name=test-source-cassandra
+connector.class=com.datamountaineer.streamreactor.connect.cassandra.source.CassandraSourceConnector
+tasks.max=1
+# The remaining configs are specific to the JDBC source connector. In this example, we connect to a
+# SQLite database stored in the file test.db, use and auto-incrementing column called 'id' to
+# detect new rows as they are added, and output to topics prefixed with 'test-sqlite-jdbc-', e.g.
+# a table called 'users' will be written to the topic 'test-sqlite-jdbc-users'.
+connect.cassandra.contact.points=localhost
+connect.cassandra.port=9042
+connect.cassandra.key.space=testkeyspace
+connect.cassandra.username=cassandra
+connect.cassandra.password=cassandra
+connect.cassandra.import.mode=incremental 
+connect.cassandra.kcql=INSERT INTO personTopic SELECT * FROM person IGNORE creationTime PK creationTime WITHUNWRAP INCREMENTALMODE=TIMESTAMP 
+
+#
+# Copyright 2018 Confluent Inc.
+#
+# Licensed under the Confluent Community License; you may not use this file
+# except in compliance with the License.  You may obtain a copy of the License at
+#
+# http://www.confluent.io/confluent-community-license
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OF ANY KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations under the License.
+#
+
+# A simple example that copies all tables from a SQLite database. The first few settings are
+# required for all connectors: a name, the connector class to run, and the maximum number of
+# tasks to create:
+name=test-sink-mysql
+connector.class=io.confluent.connect.jdbc.JdbcSinkConnector
+tasks.max=1
+# The remaining configs are specific to the JDBC source connector. In this example, we connect to a
+# SQLite database stored in the file test.db, use and auto-incrementing column called 'id' to
+# detect new rows as they are added, and output to topics prefixed with 'test-sqlite-jdbc-', e.g.
+# a table called 'users' will be written to the topic 'test-sqlite-jdbc-users'.
+connection.url=jdbc:mysql://192.168.18.65:3306/testkafkadb?user=root&password=pwd
+auto.create=true
+topics=personTopic
+
+
+sudo bin/connect-standalone etc/schema-registry/connect-avro-standalone.properties etc/kafka-connect-jdbc/cassandra-source.properties etc/kafka-connect-jdbc/mysql-sink.properties
+
+
+insert into person(id,name,location,creationTime) values(1,'Naveen','Hyderabad', toUnixTimestamp(now()));
+create table person(id int,name text,location text,creationTime timestamp,PRIMARY KEY(id,creationTime));
+
+
+
+
+"key.converter": "io.confluent.connect.avro.AvroConverter",
+    "value.converter": "io.confluent.connect.avro.AvroConverter"
+    
+    org.apache.kafka.connect.errors.ConnectException: Value schema must be of type Struct
+
+
+
+sudo ./kafka-avro-console-consumer --topic personTopic --bootstrap-server localhost:9092 --from-beginning
+
+
+sudo bin/connect-standalone etc/schema-registry/connect-avro-standalone.properties etc/kafka-connect-jdbc/cassandra-source.properties etc/kafka-connect-jdbc/mysql-sink.properties
+
+https://www.eclipse.org/downloads/download.php?file=/oomph/epp/2018-12/R/eclipse-inst-linux64.tar.gz&mirror_id=518
+
+
+
+
+Steps for pushing records from cassandra to a topic using cassandra connector
+===============================================================================
+
+1. We already have required connectors i.e., both mysql and cassandra as destination and source respectively
+2. create cassandra-source.properties under /home/kafka/Desktop/Kafka/confluent-5.1./etc/kafka-connect-jdbc and 
+    below properties to the file
+    
+    name=cassandra-source-orders
+    connector.class=com.datamountaineer.streamreactor.connect.cassandra.source.CassandraSourceConnector
+    tasks.max=1
+    connect.cassandra.contact.points=localhost
+    connect.cassandra.port=9042
+    connect.cassandra.key.space=testkeyspace
+    connect.cassandra.username=cassandra
+    connect.cassandra.password=cassandra
+    connect.cassandra.kcql=INSERT INTO ordersTopic SELECT * FROM orders  PK created INCREMENTALMODE=TIMEUUID  
+
+3. Create a new table in cassandra using following command
+
+     create table orders (id int, created timeuuid, product text, qty int, price float, PRIMARY KEY (id, created));
+     INSERT INTO orders (id, created, product, qty, price) VALUES (1, now(), 'test-product1', 100, 94.2);
+     
+4. Now open a avro consumer to check on the topic whether it is recieving the records. Run the following command in confluence\bin     
+   directory
+   
+   sudo ./kafka-avro-console-consumer --topic ordersTopic --bootstrap-server localhost:9092 --from-beginning
+   
+5. We should be able to recieve the existing and new db records upon inserting in the cassandra database
+
+Steps to persists records from ordersTopic to a remote mysql database
+=====================================================================
+
+1. Follow the above five steps
+2. create confluent-5.1.0/etc/kafka-connect-jdbc/mysql-sink.properties and add the following properties to it
+ 
+    name=orders-sink-mysql
+    connector.class=io.confluent.connect.jdbc.JdbcSinkConnector
+    tasks.max=1
+    connection.url=jdbc:mysql://192.168.18.65:3306/testkafkadb?user=root&password=pwd
+    auto.create=true
+    topics=ordersTopic
+    
+3. Run the following command in confluence base directory
+
+   sudo bin/connect-standalone etc/schema-registry/connect-avro-standalone.properties 
+   etc/kafka-connect-jdbc/cassandra-source.properties etc/kafka-connect-jdbc/mysql-sink.properties >/home/kafka/Desktop   
+   /kafka.log 
+   
+   now whenever new record is inserted in cassandra db, that record will be inserted into the topic which we provided    in cassandra-source.properties i.e., "ordersTopic" by cassandra-source connector then from there mysql-sink connector will pick each record from that topic and it will insert into remoted mysql db.
+   
+   Check mysql table if new records are being inserted after inserting into cassandra.
+   
+   Note: Since we have added auto.create=true in mysql-sink.proeprties, mysql-sink connector will autormatically create the table based on the columns in the ordersTopic WRT mysql 
+   
+   
+   below command is used to check the connector processor is running or not.  
+   ps -ef| grep connectors
+ 
+
+         
+
+
